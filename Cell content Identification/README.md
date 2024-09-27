@@ -1,0 +1,1 @@
+This folder contains the code with the first attempt at classifying cell content. It uses openCV functions for BackGround (BG) extraction and mostly follows the segmentation algorithms developed in https://github.com/AvsThiago/DeepBee-source.

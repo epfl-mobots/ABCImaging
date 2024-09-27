@@ -1,0 +1,7 @@
+(24a) IR Imaging alias
+.DS_Store
+__pycache__
+
+# Not syncing big videos
+VideoManagment/outputVideos
+ForegroundRemoval/MedianFilter/sample_hive4_rpi4_200729-225247--200831-000001-utc.mp4
