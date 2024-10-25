@@ -1,8 +1,6 @@
 '''Based on Daniel's code'''
-import glob
 import cv2 as cv
 import numpy as np
-import matplotlib.pyplot as plt
 
 def unsharp_mask(
         image,
@@ -24,7 +22,6 @@ def unsharp_mask(
         # OpenCV4 function copyTo
         np.copyTo(sharpened, image, where=low_contrast_mask)
     return sharpened
-
 
 def beautify_frame(img):
     """Undistort, sharpen, hist-equalize and label image."""
