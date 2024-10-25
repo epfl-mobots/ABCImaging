@@ -2,7 +2,7 @@
 import cv2
 import os
 from tqdm import tqdm
-from videolib import generateVideoFromList
+from videolib import generateVideoFromList, imageHiveOverview
 
 # Path to the folder containing the pictures
 rootpath = '/Users/cyrilmonette/Desktop/EPFL 2018-2026/PhD - Mobots/data/24.09_observation_OH/Images/'
@@ -36,18 +36,10 @@ final_imgs = []
 print("Generating frames...")
 for i in tqdm(range(len(files[0]))):
     imgs = [cv2.imread(os.path.join(paths[j], files[j][i])) for j in range(len(files))]
-    # put the texts on each image
-    for j in range(len(imgs)):
-        cv2.putText(imgs[j], files[j][i], (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
 
-    # Concatenate the images horizontally
-    img_top = cv2.hconcat([imgs[2], imgs[0]]) # Frame 3 and 1 on top
-    img_bottom = cv2.hconcat([imgs[3], imgs[1]]) # Frame 4 and 2 on bottom
-    img = cv2.vconcat([img_top, img_bottom])
-    # Resize the image to 4K
-    img = cv2.resize(img, (3840, 2160), interpolation=cv2.INTER_LINEAR)
+    assembled_img = imageHiveOverview(imgs, [files[j][i] for j in range(len(files))])
     # Add the image to the list of images
-    final_imgs.append(img)
+    final_imgs.append(assembled_img)
 
 print("Number of frames: ", len(final_imgs))
 # Show the first frame (numbers, not colors)

@@ -36,3 +36,19 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10,grayscal
 
     # Release the VideoWriter object
     video.release()
+
+def imageHiveOverview(imgs: list,texts: list):
+    '''
+    Generates a global image with the 4 images of the hives. Also adds the timestamp on the pictures.
+    '''
+    # put the texts on each image
+    for j in range(len(imgs)):
+        cv2.putText(imgs[j], texts[j], (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
+
+    # Concatenate the images horizontally
+    img_top = cv2.hconcat([imgs[0], imgs[2]]) # Frame 1 and 3 on top
+    img_bottom = cv2.hconcat([imgs[1], imgs[3]]) # Frame 2 and 4 on bottom
+    img = cv2.vconcat([img_top, img_bottom])
+    # Resize the image to 4K
+    img = cv2.resize(img, (3840, 2160), interpolation=cv2.INTER_LINEAR)
+    return img
