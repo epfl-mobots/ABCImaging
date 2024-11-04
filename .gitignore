@@ -3,6 +3,8 @@ NapariWorkshop
 DaskIntro
 .DS_Store
 __pycache__
+*.tif
+*.tiff
 
 # Not syncing big videos
 VideoManagment/outputVideos
