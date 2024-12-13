@@ -5,11 +5,11 @@ from tqdm import tqdm
 from videolib import generateVideoFromList, imageHiveOverview
 
 # Path to the folder containing the pictures
-rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.09-24.10_observation_OH/Images/'
+rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.11-24.12_actuation_OH/Images/'
 hive = "2"
 
-first_dt = "241109-090000Z"
-last_dt = "251119-190000Z"
+first_dt = "241210-090000Z"
+last_dt = "251213-190000Z"
 
 frame_drop = 10 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
 
