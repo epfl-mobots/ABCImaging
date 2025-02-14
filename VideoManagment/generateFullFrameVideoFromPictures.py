@@ -3,12 +3,13 @@ import cv2
 import os
 from tqdm import tqdm
 from videolib import generateVideoFromList, imageHiveOverview
+import multiprocessing
 
 # Path to the folder containing the pictures
 rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.09-24.10_observation_OH/Images/'
-hive = "2"
+hive = "1"
 
-first_dt = "241109-090000Z"
+first_dt = "241112-090000Z"
 last_dt = "251119-190000Z"
 
 frame_drop = 10 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
@@ -50,3 +51,6 @@ print("Number of frames: ", len(final_imgs))
 dest = "outputVideos/"
 # Make this a global path
 generateVideoFromList(final_imgs, dest = "outputVideos/", name = "hive"+ hive + "_" + first_dt + "_" + last_dt, fps=10, grayscale=False)
+
+# Cleanup step to release resources
+multiprocessing.active_children()
