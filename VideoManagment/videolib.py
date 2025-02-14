@@ -51,4 +51,13 @@ def imageHiveOverview(imgs: list,texts: list):
     img = cv2.vconcat([img_top, img_bottom])
     # Resize the image to 4K
     img = cv2.resize(img, (3840, 2160), interpolation=cv2.INTER_LINEAR)
+    dt = texts[0].split("_")[-1]
+    dt = dt[:-7]
+    
+    # Write the timestamp in black ontop of the white rectangle
+    (text_width, text_height), _ = cv2.getTextSize(dt, cv2.FONT_HERSHEY_SIMPLEX, 2, 3)
+    rectangle_bgr = (255, 255, 255)
+    box_coords = ((1700, 1060 + 15), (1700 + text_width, 1060 - text_height - 15))
+    cv2.rectangle(img, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+    cv2.putText(img, dt, (1700, 1060), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 3, cv2.LINE_AA)
     return img
