@@ -21,7 +21,6 @@ paths = [path for path in paths if "h"+hive in path]
 paths.sort() # Now this contains the path to all RPis images
 
 # Generate first and last picture name
-#hives = [path.split("/")[-1][1] for path in paths]
 rpis = [path.split("/")[-1][3] for path in paths]
 first_pics = ["hive" + hive + "_rpi" + rpi + "_" + first_dt + ".jpg" for rpi in rpis]
 last_pics = ["hive" + hive + "_rpi" + rpi + "_" + last_dt + ".jpg" for rpi in rpis]
