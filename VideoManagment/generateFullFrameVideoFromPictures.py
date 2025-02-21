@@ -6,11 +6,11 @@ from videolib import generateVideoFromList, imageHiveOverview
 import multiprocessing
 
 # Path to the folder containing the pictures
-rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.09-24.10_observation_OH/Images/'
+rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.11_aSensing_OH/Images/'
 hive = "1"
 
-first_dt = "241112-090000Z"
-last_dt = "251119-190000Z"
+first_dt = "241028-093000Z"
+last_dt = "241114-190000Z"
 
 frame_drop = 10 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
 
