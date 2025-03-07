@@ -5,6 +5,7 @@ DaskIntro
 __pycache__
 *.tif
 *.tiff
+ForegroundRemoval/*.png
 
 # Not syncing big videos
 VideoManagment/outputVideos
