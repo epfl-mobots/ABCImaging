@@ -6,6 +6,7 @@ __pycache__
 *.tif
 *.tiff
 ForegroundRemoval/*.png
+ForegroundRemoval/iLastikDataset
 
 # Not syncing big videos
 VideoManagment/outputVideos
