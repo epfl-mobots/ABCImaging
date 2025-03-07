@@ -9,4 +9,4 @@ ForegroundRemoval/*.png
 
 # Not syncing big videos
 VideoManagment/outputVideos
-ForegroundRemoval/MedianFilter/sample_hive4_rpi4_200729-225247--200831-000001-utc.mp4
+ForegroundRemoval/MedianFilter/Outputs/sample_hive4_rpi4_200729-225247--200831-000001-utc.mp4
