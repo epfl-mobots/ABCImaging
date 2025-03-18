@@ -51,10 +51,12 @@ def filter_substack(images,i,filter_length,percentile,frame_skip=1):
     return percentile_img
 
 
-def percentile_filter(images_folder,start_idx, stop_idx,step=1,frame_skip=1,filter_length=40,percentile=75):
+def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75):
     '''
     This function makes a percentile filter of images between start and stop indexes.
     '''
+    if stop_idx is None:
+        stop_idx = start_idx + 1
     idxs = range(start_idx, stop_idx, step) # Images that need to be filtered
     print("Indexes: ", idxs)
     all_files = os.path.join(images_folder, '*.jpg')
