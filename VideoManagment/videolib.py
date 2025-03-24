@@ -37,13 +37,14 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10,grayscal
     # Release the VideoWriter object
     video.release()
 
-def imageHiveOverview(imgs: list,texts: list):
+def imageHiveOverview(imgs: list,img_names: list, annotate_names: bool = True):
     '''
-    Generates a global image with the 4 images of the hives. Also adds the timestamp on the pictures.
+    Generates a global image with the 4 images of the hives. Also adds the img_names on the pictures.
     '''
-    # put the texts on each image
-    for j in range(len(imgs)):
-        cv2.putText(imgs[j], texts[j], (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
+    if annotate_names:
+        # put the img names on each image
+        for j in range(len(imgs)):
+            cv2.putText(imgs[j], img_names[j], (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
 
     # Concatenate the images horizontally
     img_top = cv2.hconcat([imgs[0], imgs[2]]) # Frame 1 and 3 on top
@@ -51,7 +52,7 @@ def imageHiveOverview(imgs: list,texts: list):
     img = cv2.vconcat([img_top, img_bottom])
     # Resize the image to 4K
     img = cv2.resize(img, (3840, 2160), interpolation=cv2.INTER_LINEAR)
-    dt = texts[0].split("_")[-1]
+    dt = img_names[0].split("_")[-1]
     dt = dt[:-7]
     
     # Write the timestamp in black ontop of the white rectangle

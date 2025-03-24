@@ -4,7 +4,7 @@ import dask.array as da
 from dask import delayed
 from math import ceil, floor
 sys.path.append('../../Preprocessing')
-from preproc import beautify_frame
+from ABCImaging.Preprocessing.preproc import beautify_frame
 
 
 # Converts an image to grayscale
