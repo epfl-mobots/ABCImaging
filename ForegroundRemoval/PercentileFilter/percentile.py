@@ -51,17 +51,19 @@ def filter_substack(images,i,filter_length,percentile,frame_skip=1):
     return percentile_img
 
 
-def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75):
+def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75, verbose=False):
     '''
-    This function makes a percentile filter of images between start and stop indexes.
+    This function makes a percentile filter of images between start and stop indexes.  It is preprocessing images.
     '''
     if stop_idx is None:
         stop_idx = start_idx + 1
     idxs = range(start_idx, stop_idx, step) # Images that need to be filtered
-    print("Indexes: ", idxs)
+    if verbose:
+        print("Indexes: ", idxs)
     all_files = os.path.join(images_folder, '*.jpg')
     images = dask_image.imread.imread(all_files)
-    print("Dask images: ", images)
+    if verbose:
+        print("Dask images: ", images)
 
     # Prepare all filenames
     filenames = os.listdir(images_folder)
@@ -72,10 +74,20 @@ def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1
     # Read the first image to get the dimensions
     first_image = cv2.imread(os.path.join(images_folder, filenames[0]))
     height, width, _ = first_image.shape
-    print("Image dimensions: ", height, width)
+    if verbose:
+        print("Image dimensions: ", height, width)
 
     filtered_imgs = [filter_substack(images, i,filter_length,percentile,frame_skip) for i in idxs]
     # Annotate all images with their name
     filtered_imgs = [annotate_name(img, filenames[idx]) for idx, img in zip(idxs,filtered_imgs)]
     filtered_imgs = da.stack([da.from_delayed(d, shape=(height,width), dtype=np.uint8) for d in filtered_imgs], axis=0)
     return filtered_imgs
+
+def percentile_filter_single(img_path,step=1,frame_skip=1,filter_length=40,percentile=75, verbose=False):
+    '''
+    This function makes a percentile filter of a single image rather than a substack. It is preprocessing images.
+    '''
+    parent_folder = os.path.dirname(img_path)
+    image_file = os.path.basename(img_path)
+    index = sorted(os.listdir(parent_folder)).index(image_file)
+    return percentile_filter(parent_folder, index, step=step, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile,verbose=verbose)
