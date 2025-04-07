@@ -5,6 +5,39 @@
 import cv2 as cv
 import numpy as np
 
+def findVerticalBoardLimits(img):
+    # Perform edge detection
+    edges = cv.Canny(img, 150, 300)
+    # Detect lines using Hough Transform
+    lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=200, minLineLength=2600, maxLineGap=1500)
+    h_lines = [line for line in lines if abs(line[0][1] - line[0][3]) < 80] # Horizontal lines
+
+    if len(h_lines) == 0:
+        raise ValueError("No horizontal lines detected")
+
+    lowest_h_line = h_lines[np.argmax([line[0][1] for line in h_lines])]
+
+    bottom_border = np.mean([lowest_h_line[0][1], lowest_h_line[0][3]])
+    top_border = bottom_border - 1900
+    return int(top_border), int(bottom_border)
+
+def findHorizontalBoardLimits(img):
+    # Perform edge detection
+    edges = cv.Canny(img, 150, 300)
+    # Detect lines using Hough Transform
+    lines = cv.HoughLinesP(edges, 1, np.pi / 180, threshold=200, minLineLength=1200, maxLineGap=600)
+    v_lines = [line for line in lines if abs(line[0][0] - line[0][2]) < 80] # Vertical lines
+
+    if len(v_lines) == 0:
+        raise ValueError("No vertical lines detected")
+    
+    leftmost_v_line = v_lines[np.argmin([line[0][0] for line in v_lines])]
+    rightmost_v_line = v_lines[np.argmax([line[0][0] for line in v_lines])]
+    left_border = np.mean([leftmost_v_line[0][0], leftmost_v_line[0][2]])
+    right_border = np.mean([rightmost_v_line[0][0], rightmost_v_line[0][2]])
+    return int(left_border), int(right_border)
+
+
 def _undistort(img):
     """Remove distortions from the image using calibration data.
     From

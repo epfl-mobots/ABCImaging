@@ -59,6 +59,9 @@ def percentile_filter(images_folder,start_idx, stop_idx,step=1,frame_skip=1,filt
     print("Indexes: ", idxs)
     all_files = os.path.join(images_folder, '*.jpg')
     images = dask_image.imread.imread(all_files)
+    img_names = [f for f in os.listdir(images_folder) if f.endswith('.jpg')]
+    img_names.sort()
+    img_names = [img_names[i] for i in idxs]
     print("Dask images: ", images)
 
     # Prepare all filenames
@@ -76,4 +79,4 @@ def percentile_filter(images_folder,start_idx, stop_idx,step=1,frame_skip=1,filt
     # Annotate all images with their name
     filtered_imgs = [annotate_name(img, filenames[idx]) for idx, img in zip(idxs,filtered_imgs)]
     filtered_imgs = da.stack([da.from_delayed(d, shape=(height,width), dtype=np.uint8) for d in filtered_imgs], axis=0)
-    return filtered_imgs
+    return filtered_imgs, img_names
