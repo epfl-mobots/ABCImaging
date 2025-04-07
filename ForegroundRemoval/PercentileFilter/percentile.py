@@ -93,4 +93,8 @@ def percentile_filter_single(img_path,step=1,frame_skip=1,filter_length=40,perce
     parent_folder = os.path.dirname(img_path)
     image_file = os.path.basename(img_path)
     index = sorted(os.listdir(parent_folder)).index(image_file)
-    return percentile_filter(parent_folder, index, step=step, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile,verbose=verbose)
+    img, img_name = percentile_filter(parent_folder, index, step=step, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile,verbose=verbose)
+    img = img[0]
+    img_name = img_name[0]
+
+    return img, img_name
