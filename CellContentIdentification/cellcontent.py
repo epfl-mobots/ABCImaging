@@ -2,14 +2,28 @@ import cv2 as cv
 import numpy as np
 
 def thresholding(img, threshold):
+    '''
+    Applies a binary threshold to the image.
+    Parameters:
+    img: The input image as np.uint8.
+    threshold: The threshold value (0-255).
+    Returns:
+    The thresholded image as a binary image.
+    '''
     # Apply a threshold to the image
     _, img = cv.threshold(img, threshold, 255, cv.THRESH_BINARY)
     return img
 
-def morph(img, kernel_size = 7):
+def morph(img, kernel_size = 7, close_first=True,iterations=2):
     # Apply a morphological transformation to the image to remove small islands of noise
     kernel = np.ones((kernel_size,kernel_size), np.uint8)
-    img = cv.morphologyEx(img, cv.MORPH_OPEN, kernel, iterations=2)
+    if close_first:
+        # Apply a closing operation to fill small holes
+        img = cv.morphologyEx(img, cv.MORPH_CLOSE, kernel, iterations=iterations)
+    img = cv.morphologyEx(img, cv.MORPH_OPEN, kernel, iterations=iterations)
+    if not close_first:
+        # Apply a closing operation to fill small holes
+        img = cv.morphologyEx(img, cv.MORPH_CLOSE, kernel, iterations=iterations)
     return img
 
 def remove_small_patches(img, min_size):
