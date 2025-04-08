@@ -14,7 +14,7 @@ def thresholding(img, threshold):
     _, img = cv.threshold(img, threshold, 255, cv.THRESH_BINARY)
     return img
 
-def morph(img, kernel_size = 7, close_first=True,iterations=2):
+def morph(img, kernel_size = 7, close_first=False,iterations=2):
     # Apply a morphological transformation to the image to remove small islands of noise
     kernel = np.ones((kernel_size,kernel_size), np.uint8)
     if close_first:
