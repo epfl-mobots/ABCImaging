@@ -1,5 +1,6 @@
 import os, dask_image.imread, cv2, sys
 import numpy as np
+import pandas as pd
 import dask.array as da
 from dask import delayed
 from math import ceil, floor
@@ -49,6 +50,50 @@ def filter_substack(images,i,filter_length,percentile,frame_skip=1):
     # Calculate the percentile
     percentile_img = percentile_custom(substack_gray, percentile)
     return percentile_img
+
+
+def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,percentile=75, verbose=False):
+    '''
+    This function makes a percentile filter of images with paths contained in a dataframe. It is preprocessing images.
+    Returns a dataframe with the filtered images with the same structure as the input dataframe.
+    '''
+    filtered_imgs = pd.DataFrame(columns=img_paths.columns)
+    imgs_names = pd.DataFrame(columns=img_paths.columns)
+    # For names, just put the os.path.basename of img_paths
+    for col in img_paths.columns:
+        imgs_names[col] = img_paths[col].apply(lambda x: os.path.basename(x).split('.')[0])
+        filtered_imgs[col] = img_paths[col].apply(lambda x: None)
+
+    for col in img_paths.columns:
+        first_path = img_paths[col].iloc[0]
+        last_path = img_paths[col].iloc[-1]
+        first_dt = pd.to_datetime(os.path.basename(first_path).split('_')[-1].split('.')[0], format='%y%m%d-%H%M%SZ')
+        last_dt = pd.to_datetime(os.path.basename(last_path).split('_')[-1].split('.')[0], format='%y%m%d-%H%M%SZ')
+        total_time = (last_dt - first_dt).total_seconds()/60.0
+        step = int(total_time / (len(img_paths[col])-1))
+        if verbose:
+            print("First date: ", first_dt)
+            print("Last date: ", last_dt)
+            print("Total time: ", total_time)
+            print("Step: ", step)
+        folder = os.path.dirname(first_path)
+        files = os.listdir(folder)
+        files.sort()
+        start_idx = files.index(os.path.basename(first_path))
+        stop_idx = files.index(os.path.basename(last_path)) + 1
+        rpi_imgs, _ = percentile_filter(folder, start_idx, stop_idx, step=step, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile, verbose=verbose)
+        print("Filtered images: ", rpi_imgs)
+        # Print the number of values in rpi_imgs
+        print("Number of values in rpi_imgs: ", len(rpi_imgs))
+        # Print the number of rows in filtered_imgs[col]
+        print("Number of rows in filtered_imgs[col]: ", len(filtered_imgs[col]))
+        rpi_imgs = np.array(rpi_imgs)
+        # Print the shape of rpi_imgs
+        print("Shape of rpi_imgs: ", rpi_imgs.shape)
+        filtered_imgs[col] = list(rpi_imgs)
+
+
+    return filtered_imgs, imgs_names
 
 
 def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75, verbose=False):
