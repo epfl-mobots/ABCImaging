@@ -1,5 +1,6 @@
 import os, dask_image.imread, cv2, sys
 import numpy as np
+import pandas as pd
 import dask.array as da
 from dask import delayed
 from math import ceil, floor
@@ -39,7 +40,7 @@ def beautify_frame_delayed(img):
     #img = np.array(img) # Convert from Dask array to numpy array
     return beautify_frame(img)
 
-def filter_substack(images,i,filter_length,percentile,frame_skip=1):
+def __filter_substack(images,i,filter_length,percentile,frame_skip=1):
     # Get the substack
     substack = images[max(0,i-frame_skip*floor(filter_length/2)):i + frame_skip*ceil(filter_length/2)]
     # Convert the substack to grayscale
@@ -50,14 +51,7 @@ def filter_substack(images,i,filter_length,percentile,frame_skip=1):
     percentile_img = percentile_custom(substack_gray, percentile)
     return percentile_img
 
-
-def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75, verbose=False):
-    '''
-    This function makes a percentile filter of images between start and stop indexes.  It is preprocessing images.
-    '''
-    if stop_idx is None:
-        stop_idx = start_idx + 1
-    idxs = range(start_idx, stop_idx, step) # Images that need to be filtered
+def __filter(images_folder,idxs:list,frame_skip=1,filter_length=40,percentile=75, verbose=False):
     if verbose:
         print("Indexes: ", idxs)
     all_files = os.path.join(images_folder, '*.jpg')
@@ -80,17 +74,60 @@ def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1
     if verbose:
         print("Image dimensions: ", height, width)
 
-    filtered_imgs = [filter_substack(images, i,filter_length,percentile,frame_skip) for i in idxs]
+    filtered_imgs = [__filter_substack(images, i,filter_length,percentile,frame_skip) for i in idxs]
     # Annotate all images with their name
     filtered_imgs = [annotate_name(img, filenames[idx]) for idx, img in zip(idxs,filtered_imgs)]
     filtered_imgs = da.stack([da.from_delayed(d, shape=(height,width), dtype=np.uint8) for d in filtered_imgs], axis=0)
     return filtered_imgs, img_names
 
-def percentile_filter_single(img_path,step=1,frame_skip=1,filter_length=40,percentile=75, verbose=False):
+
+def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,percentile=75, verbose=False):
+    '''
+    This function makes a percentile filter of images with paths contained in a dataframe. It is preprocessing images.
+    Returns a dataframe with the filtered images with the same structure as the input dataframe.
+    '''
+    filtered_imgs = pd.DataFrame(columns=img_paths.columns)
+    imgs_names = pd.DataFrame(columns=img_paths.columns)
+    # For names, just put the os.path.basename of img_paths
+    for col in img_paths.columns:
+        imgs_names[col] = img_paths[col].apply(lambda x: os.path.basename(x).split('.')[0])
+        filtered_imgs[col] = img_paths[col].apply(lambda x: None)
+
+    for col in img_paths.columns:
+        first_path = img_paths[col].iloc[0]
+        folder = os.path.dirname(first_path)
+        files = os.listdir(folder)
+        files.sort()
+        # Find the idx in files corresponding to all the images in img_paths[col]
+        idxs = []
+        for path in img_paths[col]:
+            idxs.append(files.index(os.path.basename(path)))
+        rpi_imgs, _ = __filter(folder, idxs, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile, verbose=verbose)
+        rpi_imgs = np.array(rpi_imgs)
+        filtered_imgs[col] = list(rpi_imgs)
+
+    return filtered_imgs, imgs_names
+
+
+def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75, verbose=False):
+    '''
+    This function makes a percentile filter of images between start and stop indexes.  It is preprocessing images.
+    '''
+    if stop_idx is None:
+        stop_idx = start_idx + 1
+    idxs = range(start_idx, stop_idx, step) # Images that need to be filtered
+    return __filter(images_folder, idxs, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile, verbose=verbose)
+
+def percentile_filter_single(img_path,frame_skip=1,filter_length=40,percentile=75, verbose=False):
     '''
     This function makes a percentile filter of a single image rather than a substack. It is preprocessing images.
     '''
     parent_folder = os.path.dirname(img_path)
     image_file = os.path.basename(img_path)
-    index = sorted(os.listdir(parent_folder)).index(image_file)
-    return percentile_filter(parent_folder, index, step=step, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile,verbose=verbose)
+    all_files = [f for f in os.listdir(parent_folder) if f.endswith('.jpg')]
+    index = sorted(all_files).index(image_file)
+    img, img_name = __filter(parent_folder, [index], frame_skip=frame_skip, filter_length=filter_length, percentile=percentile, verbose=verbose)
+    img = img[0]
+    img_name = img_name[0]
+
+    return img, img_name
