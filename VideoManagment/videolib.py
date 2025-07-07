@@ -37,6 +37,30 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10,grayscal
     # Release the VideoWriter object
     video.release()
 
+def initVideoWriter(dest, frame, name:str="video",fps:int=10, grayscale=True):
+    '''
+    This function initializes a VideoWriter object to write frames to a video file.
+    If the video file already exists, it will be overwritten.
+    The frame param is used to determine the size of the video.
+    '''
+    # Checks on the inputs
+    if not os.path.isdir(dest):
+        raise ValueError("dest must be a valid directory")
+    
+    # Generate mp4 video from final_imgs
+    if grayscale:
+        height, width = frame.shape
+    else:
+        height, width, _ = frame.shape
+    size = (width, height)
+    # Define the codec and create VideoWriter object
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4 file
+    # Convert destination from PosixPath to string
+    name = str(dest)+'/'+name+".mp4"
+    video = cv2.VideoWriter(name, fourcc, fps, size,isColor=not grayscale)
+    return video
+
+
 def imageHiveOverview(imgs: list,img_names: list, annotate_names: bool = True):
     '''
     Generates a global image with the 4 images of the hives. Also adds the img_names on the pictures.
