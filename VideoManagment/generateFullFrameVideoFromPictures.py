@@ -8,12 +8,12 @@ import pandas as pd
 
 # ====================================== CONGIGURATION ======================================
 # Path to the folder containing the pictures
-rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.11_aSensing_OH/Images/'
+rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.09-24.10_observation_OH/Images/'
 rootpath_img_period = 1 # Period between every image in the folder in minutes
 hive = "2"
 
-first_dt_str = "241029-140000Z"
-last_dt_str = "241121-190000Z"
+first_dt_str = "241011-150000Z"
+last_dt_str = "241028-100000Z"
 
 frame_drop = 20 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
 fps_video = 30 # Frames per second for the video

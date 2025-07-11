@@ -1,11 +1,11 @@
-import os, dask_image.imread, cv2, sys
+import os, cv2, sys
 import numpy as np
 import pandas as pd
-import dask.array as da
-from dask import delayed
 from math import ceil, floor
-sys.path.append('../../Preprocessing')
-from ABCImaging.Preprocessing.preproc import beautify_frame
+import dask_image.imread
+from dask import delayed
+import dask.array as da
+from Preprocessing.preproc import beautify_frame
 
 
 # Converts an image to grayscale
@@ -42,7 +42,7 @@ def beautify_frame_delayed(img):
 
 def __filter_substack(images,i,filter_length,percentile,frame_skip=1):
     # Get the substack
-    substack = images[max(0,i-frame_skip*floor(filter_length/2)):i + frame_skip*ceil(filter_length/2)]
+    substack = images[max(0,i-frame_skip*floor(filter_length/2)):i + frame_skip*ceil(filter_length/2):frame_skip]
     # Convert the substack to grayscale
     substack_gray = [convert_gray(img) for img in substack]
     # Preprocess the substack
