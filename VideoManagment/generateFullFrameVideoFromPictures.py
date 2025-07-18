@@ -8,15 +8,15 @@ import pandas as pd
 
 # ====================================== CONGIGURATION ======================================
 # Path to the folder containing the pictures
-rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.09-24.10_observation_OH/Images/'
-rootpath_img_period = 1 # Period between every image in the folder in minutes
-hive = "2"
+rootpath = '/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/25.07_aSensing_OH/Images/'
+rootpath_img_period = 5 # Period between every image in the folder in minutes
+hive = "1"
 
-first_dt_str = "241011-150000Z"
-last_dt_str = "241028-100000Z"
+first_dt_str = "250711-200000Z"
+last_dt_str = "250718-060000Z"
 
-frame_drop = 20 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
-fps_video = 30 # Frames per second for the video
+frame_drop = 1 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
+fps_video = 10 # Frames per second for the video
 
 # ===================================== MAIN SCRIPT =====================================
 
@@ -50,6 +50,8 @@ if __name__ == "__main__":
     # Sort the files by name
     for i in range(len(files)):
         files[i].sort()
+        # Remove hidden files (starting with .)
+        files[i] = [f for f in files[i] if not f.startswith('.')]
     
     print(len(files[0]),len(files[1]),len(files[2]),len(files[3]))
 
