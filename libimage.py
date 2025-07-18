@@ -10,7 +10,7 @@ import pandas as pd
 import os
 from tqdm import tqdm
 
-def fetchImagesPaths(rootpath_imgs, datetimes, hive_nb:str, images_fill_limit = 30, rpis:list[int]=[1,2,3,4]):
+def fetchImagesPaths(rootpath_imgs:str, datetimes:list, hive_nb:str, images_fill_limit = 30, rpis:list[int]=[1,2,3,4]):
     '''
     Fetches the images' paths for a specific hive at specific datetimes.
     Parameters:

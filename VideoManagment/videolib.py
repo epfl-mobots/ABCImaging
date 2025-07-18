@@ -77,7 +77,9 @@ def imageHiveOverview(imgs: list,img_names: list, annotate_names: bool = True):
     # Resize the image to 4K
     img = cv2.resize(img, (3840, 2160), interpolation=cv2.INTER_LINEAR)
     dt = img_names[0].split("_")[-1]
-    dt = dt[:-7]
+    # Remove the file extension and timezone info
+    dt = dt.split(".")[0]
+    dt = dt[:-3] # This gets rid of 01Z (seconds and timezone info)
     
     # Write the timestamp in black ontop of the white rectangle
     (text_width, text_height), _ = cv2.getTextSize(dt, cv2.FONT_HERSHEY_SIMPLEX, 2, 3)
