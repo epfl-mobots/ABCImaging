@@ -58,6 +58,7 @@ def __filter_substack(images,i,filter_length,percentile,frame_skip=1):
 def __filter(images_folder,idxs:list,frame_skip=1,filter_length=40,percentile=75, annotate_names=False, verbose=False):
     if verbose:
         print("Indexes: ", idxs)
+        print("for images in folder: ", images_folder)
     all_files = os.path.join(images_folder, '*.jpg')
     images = dask_image.imread.imread(all_files)
     img_names = [f for f in os.listdir(images_folder) if f.endswith('.jpg')]
@@ -103,6 +104,8 @@ def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,pe
         folder = os.path.dirname(first_path)
         files = sorted(os.listdir(folder))
 
+        # Remove hidden files (starting with .)
+        files = [f for f in files if not f.startswith('.')]
         # Find the idx in files corresponding to all the images in img_paths[col]
         idxs = []
         for path in img_paths[col]:
