@@ -1,3 +1,7 @@
+# Ignore FutureWarnings
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import os, cv2, sys
 import numpy as np
 import pandas as pd
@@ -98,8 +102,8 @@ def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,pe
     for col in img_paths.columns:
         first_path = img_paths[col].iloc[0]
         folder = os.path.dirname(first_path)
-        files = os.listdir(folder)
-        files.sort()
+        files = sorted(os.listdir(folder))
+
         # Remove hidden files (starting with .)
         files = [f for f in files if not f.startswith('.')]
         # Find the idx in files corresponding to all the images in img_paths[col]
@@ -107,7 +111,7 @@ def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,pe
         for path in img_paths[col]:
             idxs.append(files.index(os.path.basename(path)))
         rpi_imgs, _ = __filter(folder, idxs, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile, annotate_names=annotate_names, verbose=verbose)
-        rpi_imgs = np.array(rpi_imgs)
+        rpi_imgs = np.array(rpi_imgs) # This computes the result
         filtered_imgs[col] = list(rpi_imgs)
 
     return filtered_imgs, imgs_names
