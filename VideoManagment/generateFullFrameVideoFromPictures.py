@@ -13,7 +13,7 @@ rootpath_img_period = 5 # Period between every image in the folder in minutes
 hive = "1"
 
 first_dt_str = "250711-200000Z"
-last_dt_str = "250722-080000Z"
+last_dt_str = "250723-073000Z"
 
 frame_drop = 1 # We keep 1 frame every frame_drop frames. Put one to keep all frames.
 fps_video = 10 # Frames per second for the video
