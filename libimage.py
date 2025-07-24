@@ -52,7 +52,7 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:st
         # Filter out datetimes that are not valid (i.e., when the hives were being opened)
         valid_datetimes = filter_timestamps(datetimes, int(hive_nb), invalid_recovery_time)
 
-    validity = [dt in valid_datetimes for dt in datetimes]
+    validity = [dt in valid_datetimes for dt in datetimes] if invalid_recovery_time is not None else None
 
     if verbose:
         print(f"Datetimes: {datetimes}")
@@ -64,7 +64,7 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:st
 
     # Build final DataFrame
     imgs_paths = pd.DataFrame(index=datetimes, columns=columns)
-    if invalid_recovery_time is not None:
+    if validity is not None:
         imgs_paths['valid'] = validity # Add a column for validity if it is checked
     
     for dt, dt_result in results:
