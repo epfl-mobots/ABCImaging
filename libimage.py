@@ -32,7 +32,7 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:st
     - rootpath_imgs: str, root path to the images
     - datetimes: list of pd.Timestamps, datetimes for which we want the images. Precision at minute level. Needs to be tz-aware.
     - hive_nb: str, hive number (e.g., "1", "2", etc.)
-    - invalid_recovery_time: int, if specified, will filter out invalid datetimes including the given recovery time (when the hives were being opened + recovery time).
+    - invalid_recovery_time: int, if specified, will filter out invalid datetimes including the given recovery time in minutes (when the hives were being opened + recovery time [min]).
     - images_fill_limit: int, if provided, maximum number of images to fill the gaps with the previous images. If not provided, will not fill gaps (None in df).
     - rpis: list of int, list of RPi numbers to consider. Default is [1,2,3,4].
     Returns:
