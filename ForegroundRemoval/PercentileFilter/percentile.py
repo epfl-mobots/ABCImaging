@@ -87,7 +87,7 @@ def __filter(images_folder,idxs:list,frame_skip=1,filter_length=40,percentile=75
     return filtered_imgs, img_names
 
 
-def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,percentile=75, annotate_names=False, verbose=False):
+def percentile_filter_df(img_paths:pd.DataFrame,frame_skip:int=1,filter_length:int=40,percentile:int=75, annotate_names:bool=False, verbose:bool=False):
     '''
     This function makes a percentile filter of images with paths contained in a dataframe. It is preprocessing images.
     Returns a dataframe with the filtered images with the same structure as the input dataframe.
@@ -117,7 +117,7 @@ def percentile_filter_df(img_paths:pd.DataFrame,frame_skip=1,filter_length=40,pe
     return filtered_imgs, imgs_names
 
 
-def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1,filter_length=40,percentile=75, annotate_names=False, verbose=False):
+def percentile_filter(images_folder,start_idx:int, stop_idx:int=None,step:int=1,frame_skip:int=1,filter_length:int=40,percentile:int=75, annotate_names:bool=False, verbose:bool=False):
     '''
     This function makes a percentile filter of images between start and stop indexes.  It is preprocessing images.
     '''
@@ -126,7 +126,7 @@ def percentile_filter(images_folder,start_idx, stop_idx=None,step=1,frame_skip=1
     idxs = range(start_idx, stop_idx, step) # Images that need to be filtered
     return __filter(images_folder, idxs, frame_skip=frame_skip, filter_length=filter_length, percentile=percentile, annotate_names=annotate_names, verbose=verbose)
 
-def percentile_filter_single(img_path,frame_skip=1,filter_length=40,percentile=75, annotate_names=False, verbose=False):
+def percentile_filter_single(img_path:str,frame_skip:int=1,filter_length:int=40,percentile:int=75, annotate_names:bool=False, verbose:bool=False):
     '''
     This function makes a percentile filter of a single image rather than a substack. It is preprocessing images.
     '''
