@@ -9,8 +9,7 @@ import pandas as pd
 import os, sys
 from tqdm import tqdm
 from dask import delayed, compute
-sys.path.append('/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/HiveOpenings')
-from libOpenings import * # To filter out invalid datetimes
+from HiveOpenings.libOpenings import * # To filter out invalid datetimes
 
 @delayed
 def _fetch_single_datetime(dt:pd.Timestamp, paths, hive_nb:str):
