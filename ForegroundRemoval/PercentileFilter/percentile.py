@@ -97,7 +97,7 @@ def percentile_filter_df(img_paths:pd.DataFrame,frame_skip:int=1,filter_length:i
     # For names, just put the os.path.basename of img_paths
     for col in img_paths.columns:
         imgs_names[col] = img_paths[col].apply(lambda x: os.path.basename(x).split('.')[0])
-        filtered_imgs[col] = img_paths[col].apply(lambda x: None)
+        filtered_imgs[col] = None
 
     for col in img_paths.columns:
         first_path = img_paths[col].iloc[0]
@@ -129,6 +129,7 @@ def percentile_filter(images_folder,start_idx:int, stop_idx:int=None,step:int=1,
 def percentile_filter_single(img_path:str,frame_skip:int=1,filter_length:int=40,percentile:int=75, annotate_names:bool=False, verbose:bool=False):
     '''
     This function makes a percentile filter of a single image rather than a substack. It is preprocessing images.
+    returns the filtered image and its name.
     '''
     parent_folder = os.path.dirname(img_path)
     image_file = os.path.basename(img_path)
