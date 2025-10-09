@@ -6,8 +6,9 @@ def generateVideoFromDir():
     '''
     This function generates a video from a sequence of pictures in a directory.
     '''
+    pass
 
-def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10,grayscale=True):
+def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10, grayscale:bool=True):
     '''
     This function generates a video from a list of images.
     '''
