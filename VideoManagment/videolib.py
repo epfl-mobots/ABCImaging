@@ -1,6 +1,53 @@
 import cv2,os
 from tqdm import tqdm
 import pandas as pd
+import numpy as np
+
+def fig_to_rgb_array(fig, rgb=False):
+    '''
+    Converts a Matplotlib figure to a 3D NumPy array (height, width, 3) of RGB values.
+    Parameters:
+    - fig: Matplotlib figure object to be converted.
+    - rgb: bool, if True, returns RGB format, else BGR format (for OpenCV compatibility).
+    Returns:
+    - buf: 3D NumPy array of shape (height, width, 3) containing RGB/BGR values.
+    '''
+    # Render the figure
+    fig.canvas.draw()
+
+    # Get the renderer (this is where pixel data lives)
+    renderer = fig.canvas.get_renderer()
+
+    # Extract RGB buffer as a NumPy array
+    buf = np.asarray(renderer.buffer_rgba())[:, :, :3]  # drop alpha channel
+    if not rgb:
+        buf = cv2.cvtColor(buf, cv2.COLOR_RGB2BGR)
+    return buf
+
+def cropFrameToContent(frame: np.ndarray, padding: int = 0) -> np.ndarray:
+    '''
+    Crops the given frame (RGB or BGR) to the content area, with the specified padding.
+    The function assumes that the contour is white (255, 255, 255) around the content area.
+    Parameters:
+    - frame: 3D NumPy array representing the image/frame to be cropped.
+    - padding: int, number of pixels to add as padding around the content area.
+    Returns:
+    - cropped_frame: 3D NumPy array of the cropped image/frame.
+    '''
+    # Check that the frame is a 3D array
+    assert frame.ndim == 3 and frame.shape[2] == 3, "frame must be RGB/BGR"
+    assert padding >= 0, "padding must be non-negative"
+
+    content = np.any(frame < 250, axis=2)
+    y, x = np.where(content)
+
+    if y.size == 0 or x.size == 0:
+        # no content found
+        return frame
+
+    miny, maxy = max(0, y.min() - padding), min(frame.shape[0], y.max() + padding)
+    minx, maxx = max(0, x.min() - padding), min(frame.shape[1], x.max() + padding)
+    return frame[miny:maxy, minx:maxx]
 
 def generateVideoFromDir():
     '''
@@ -14,7 +61,7 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10, graysca
     '''
     # Checks on the inputs
     if not os.path.isdir(dest):
-        raise ValueError("dest must be a valid directory")
+        os.makedirs(dest)
     if len(imgs) == 0:
         raise ValueError("imgs must be a non-empty list")
 
