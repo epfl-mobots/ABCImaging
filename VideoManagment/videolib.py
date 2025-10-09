@@ -24,6 +24,31 @@ def fig_to_rgb_array(fig, rgb=False):
         buf = cv2.cvtColor(buf, cv2.COLOR_RGB2BGR)
     return buf
 
+def cropFrameToContent(frame: np.ndarray, padding: int = 0) -> np.ndarray:
+    '''
+    Crops the given frame (RGB or BGR) to the content area, with the specified padding.
+    The function assumes that the contour is white (255, 255, 255) around the content area.
+    Parameters:
+    - frame: 3D NumPy array representing the image/frame to be cropped.
+    - padding: int, number of pixels to add as padding around the content area.
+    Returns:
+    - cropped_frame: 3D NumPy array of the cropped image/frame.
+    '''
+    # Check that the frame is a 3D array
+    assert frame.ndim == 3 and frame.shape[2] == 3, "frame must be RGB/BGR"
+    assert padding >= 0, "padding must be non-negative"
+
+    content = np.any(frame < 250, axis=2)
+    y, x = np.where(content)
+
+    if y.size == 0 or x.size == 0:
+        # no content found
+        return frame
+
+    miny, maxy = max(0, y.min() - padding), min(frame.shape[0], y.max() + padding)
+    minx, maxx = max(0, x.min() - padding), min(frame.shape[1], x.max() + padding)
+    return frame[miny:maxy, minx:maxx]
+
 def generateVideoFromDir():
     '''
     This function generates a video from a sequence of pictures in a directory.
