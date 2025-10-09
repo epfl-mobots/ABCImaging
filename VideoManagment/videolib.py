@@ -1,6 +1,28 @@
 import cv2,os
 from tqdm import tqdm
 import pandas as pd
+import numpy as np
+
+def fig_to_rgb_array(fig, rgb=False):
+    '''
+    Converts a Matplotlib figure to a 3D NumPy array (height, width, 3) of RGB values.
+    Parameters:
+    - fig: Matplotlib figure object to be converted.
+    - rgb: bool, if True, returns RGB format, else BGR format (for OpenCV compatibility).
+    Returns:
+    - buf: 3D NumPy array of shape (height, width, 3) containing RGB/BGR values.
+    '''
+    # Render the figure
+    fig.canvas.draw()
+
+    # Get the renderer (this is where pixel data lives)
+    renderer = fig.canvas.get_renderer()
+
+    # Extract RGB buffer as a NumPy array
+    buf = np.asarray(renderer.buffer_rgba())[:, :, :3]  # drop alpha channel
+    if not rgb:
+        buf = cv2.cvtColor(buf, cv2.COLOR_RGB2BGR)
+    return buf
 
 def generateVideoFromDir():
     '''
@@ -13,7 +35,7 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10,grayscal
     '''
     # Checks on the inputs
     if not os.path.isdir(dest):
-        raise ValueError("dest must be a valid directory")
+        os.makedirs(dest)
     if len(imgs) == 0:
         raise ValueError("imgs must be a non-empty list")
 
