@@ -79,8 +79,7 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10, graysca
     video = cv2.VideoWriter(name, fourcc, fps, size,isColor=not grayscale)
 
     # Iterate over the frames and write each one to the video
-    print("Writing video...")
-    for frame in tqdm(imgs):
+    for frame in tqdm(imgs, desc="Writing video", unit="frame"):
         video.write(frame)
 
     # Release the VideoWriter object
