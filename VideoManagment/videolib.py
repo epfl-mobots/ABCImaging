@@ -110,11 +110,12 @@ def initVideoWriter(dest, frame, name:str="video",fps:int=10, grayscale=True):
     return video
 
 
-def imageHiveOverview(imgs: list, img_names: list[str]= None, dt: pd.Timestamp = None, valid: bool = True):
+def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None, dt: pd.Timestamp = None, valid: bool = True):
     '''
     Generates a global image with the 4 images of the hives. If provided, also adds the img_names on the pictures.
     Parameters:
     - imgs: list of 4 images (numpy arrays) to be concatenated.
+    - rgb: bool, if True, the input images are in RGB format, else BGR format.
     - img_names: list of str, optional, names of the images to be put on the images.
     - dt: optional, datetime to be displayed on the final image.
     - valid: bool, if False, the overview will be visually marked as invalid.
@@ -143,15 +144,19 @@ def imageHiveOverview(imgs: list, img_names: list[str]= None, dt: pd.Timestamp =
         cv2.putText(img, dt, (1700, 1060), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 3, cv2.LINE_AA)
     
     if not valid:
-        # Convert img to BGR if it is grayscale
+        # Convert img to RGB or BGR if it is grayscale
         if len(img.shape) == 2:  # Grayscale image
-            img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            if rgb:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+            else:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         # If the image is not valid, put a transparent filter on the image
         overlay = img.copy()
-        cv2.rectangle(overlay, (0, 0), (3840, 2160), (0, 0, 255), -1)
+        red_color = (255, 0, 0) if rgb else (0, 0, 255)
+        cv2.rectangle(overlay, (0, 0), (3840, 2160), red_color, -1)
         cv2.addWeighted(overlay, 0.2, img, 0.8, 0, img)
         # Add "Invalid" text on the image
-        cv2.putText(img, "Invalid dt", (1500, 500), cv2.FONT_HERSHEY_SIMPLEX, 6, (0, 0, 255), 15, cv2.LINE_AA)
-        cv2.putText(img, "Invalid dt", (1500, 1600), cv2.FONT_HERSHEY_SIMPLEX, 6, (0, 0, 255), 15, cv2.LINE_AA)
+        cv2.putText(img, "Invalid dt", (1500, 500), cv2.FONT_HERSHEY_SIMPLEX, 6, red_color, 15, cv2.LINE_AA)
+        cv2.putText(img, "Invalid dt", (1500, 1600), cv2.FONT_HERSHEY_SIMPLEX, 6, red_color, 15, cv2.LINE_AA)
 
     return img
