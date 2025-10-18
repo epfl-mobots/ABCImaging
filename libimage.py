@@ -12,7 +12,7 @@ from dask import delayed, compute
 from HiveOpenings.libOpenings import * # To filter out invalid datetimes
 
 @delayed
-def _fetch_single_datetime(dt:pd.Timestamp, paths, hive_nb:str):
+def _fetch_single_datetime(dt:pd.Timestamp, paths, hive_nb:int):
     dt = dt.tz_convert('UTC')  # Ensure the datetime is in UTC. Will fail if not tz-aware.
     dt_result = {}
     for path in paths:
@@ -24,13 +24,13 @@ def _fetch_single_datetime(dt:pd.Timestamp, paths, hive_nb:str):
     return dt, dt_result
 
 
-def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:str, invalid_recovery_time:int = None, images_fill_limit:int = None, rpis:list[int]=[1,2,3,4], verbose=False):
+def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:int, invalid_recovery_time:int = None, images_fill_limit:int = None, rpis:list[int]=[1,2,3,4], verbose=False):
     '''
     Fetches the images' paths for a specific hive at specific datetimes using Dask for parallel processing.
     Parameters:
     - rootpath_imgs: str, root path to the images
     - datetimes: list of pd.Timestamps, datetimes for which we want the images. Precision at minute level. Needs to be tz-aware.
-    - hive_nb: str, hive number (e.g., "1", "2", etc.)
+    - hive_nb: int, hive number (e.g., 1, 2, etc.)
     - invalid_recovery_time: int, if specified, will filter out invalid datetimes including the given recovery time in minutes (when the hives were being opened + recovery time [min]).
     - images_fill_limit: int, if provided, maximum number of images to fill the gaps with the previous images. If not provided, will not fill gaps (None in df).
     - rpis: list of int, list of RPi numbers to consider. Default is [1,2,3,4].
@@ -49,7 +49,7 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:st
 
     if invalid_recovery_time is not None:
         # Filter out datetimes that are not valid (i.e., when the hives were being opened)
-        valid_datetimes = filter_timestamps(datetimes, int(hive_nb), invalid_recovery_time)
+        valid_datetimes = filter_timestamps(datetimes, hive_nb, invalid_recovery_time)
 
     validity = [dt in valid_datetimes for dt in datetimes] if invalid_recovery_time is not None else None
 
