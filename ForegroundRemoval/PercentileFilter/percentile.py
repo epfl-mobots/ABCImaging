@@ -114,6 +114,10 @@ def percentile_filter_df(img_paths:pd.DataFrame,frame_skip:int=1,filter_length:i
         rpi_imgs = np.array(rpi_imgs) # This computes the result
         filtered_imgs[col] = list(rpi_imgs)
 
+    # Retrieve index values from img_paths
+    filtered_imgs.index = img_paths.index
+    imgs_names.index = img_paths.index
+
     return filtered_imgs, imgs_names
 
 
