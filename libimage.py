@@ -55,7 +55,8 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:in
 
     if verbose:
         print(f"Datetimes: {datetimes}")
-        print(f"Valid datetimes: {valid_datetimes}")
+        if invalid_recovery_time is not None:
+            print(f"Valid datetimes: {valid_datetimes}")
 
     # Delayed processing
     delayed_results = [_fetch_single_datetime(dt, paths, hive_nb) for dt in datetimes]
