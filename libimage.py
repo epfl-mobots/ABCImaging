@@ -17,10 +17,11 @@ def _fetch_single_datetime(dt:pd.Timestamp, paths, hive_nb:int):
     dt_result = {}
     for path in paths:
         rpi_name = os.path.basename(path)[:4]
-        filename = f"hive{hive_nb}_rpi{path.split('/')[-1][3]}_{dt.strftime('%y%m%d-%H%M')}"
+        rpi_num = path.split('/')[-1][3]
+        filename = f"hive{hive_nb}_rpi{rpi_num}_{dt.strftime('%y%m%d-%H%M')}"
         files = os.listdir(path)
         img_path = next((os.path.join(path, f) for f in files if filename in f), None)
-        dt_result[rpi_name] = img_path if img_path else None
+        dt_result[rpi_name] = img_path
     return dt, dt_result
 
 
