@@ -84,12 +84,15 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:in
         imgs_paths['valid'] = validity # Add a column for validity if it is checked
 
     if images_fill_limit is not None and images_fill_limit > 0:
-        print(f"Missing images before filtering: {imgs_paths.isnull().sum().sum()} out of {len(datetimes) * len(columns)}")
+        valid_imgs = imgs_paths[imgs_paths['valid'] == True].drop(columns=['valid']) if 'valid' in imgs_paths.columns else imgs_paths
+        print(f"Missing images before filtering: {valid_imgs.isnull().sum().sum()} out of {valid_imgs.shape[0] * valid_imgs.shape[1]}")
 
         imgs_paths_filtered = imgs_paths.ffill(limit=images_fill_limit, axis=0) if images_fill_limit > 0 else imgs_paths
 
-        if imgs_paths_filtered.isnull().sum().sum() > 0:
-            raise ValueError(f"Still missing images despite filling gaps up to {images_fill_limit} images.")
+        valid_imgs_filtered = imgs_paths_filtered[imgs_paths_filtered['valid'] == True].drop(columns=['valid']) if 'valid' in imgs_paths_filtered.columns else imgs_paths_filtered
+        missing_after = valid_imgs_filtered.isnull().sum().sum()
+        if missing_after > 0:
+            print(f"[W]: There are still {missing_after} missing images after filling with limit {images_fill_limit}.")
         
         return imgs_paths_filtered
 
