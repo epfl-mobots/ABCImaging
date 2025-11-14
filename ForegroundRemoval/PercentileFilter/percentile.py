@@ -60,7 +60,11 @@ def __filter(images_folder,idxs:list,frame_skip=1,filter_length=40,percentile=75
         print("Indexes: ", idxs)
         print("for images in folder: ", images_folder)
     all_files = os.path.join(images_folder, '*.jpg')
-    images = dask_image.imread.imread(all_files)
+    try:
+        images = dask_image.imread.imread(all_files)
+    except Exception as e:
+        print(f"Error reading images from {all_files}: {e}")
+        raise e
     img_names = [f for f in os.listdir(images_folder) if f.endswith('.jpg')]
     img_names.sort()
     img_names = [img_names[i] for i in idxs]
