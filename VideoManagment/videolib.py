@@ -2,6 +2,8 @@ import cv2, os
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
+from libimage import RPiCamV3_img_shape, RPiCamV3_img_shape_RGB
+
 
 def fig_to_rgb_array(fig, rgb=False):
     '''
@@ -85,27 +87,33 @@ def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10, graysca
     # Release the VideoWriter object
     video.release()
 
-def initVideoWriter(dest, frame, name:str="video",fps:int=10, grayscale=True):
+def initVideoWriter(dest, shape, name:str="video",fps:int=10):
     '''
     This function initializes a VideoWriter object to write frames to a video file.
     If the video file already exists, it will be overwritten.
-    The frame param is used to determine the size of the video.
+    
+    :param dest: str, destination directory to save the video.
+    :param shape: tuple, shape of the frames to be written to the video (height, width) or (height, width, channels).
+    :param name: str, name of the video file (without extension).
+    :param fps: int, frames per second for the video.
     '''
+    assert len(shape) in [2, 3], "shape must be a tuple of length 2 or 3"
+    grayscale = len(shape) == 2
     # Checks on the inputs
     if not os.path.isdir(dest):
         raise ValueError("dest must be a valid directory")
     
     # Generate mp4 video from final_imgs
     if grayscale:
-        height, width = frame.shape
+        height, width = shape
     else:
-        height, width, _ = frame.shape
+        height, width, _ = shape
     size = (width, height)
     # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4 file
     # Convert destination from PosixPath to string
     name = str(dest)+'/'+name+".mp4"
-    video = cv2.VideoWriter(name, fourcc, fps, size,isColor=not grayscale)
+    video = cv2.VideoWriter(name, fourcc, fps, size, isColor = not grayscale)
     return video
 
 def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None, dt: pd.Timestamp = None, valid: bool = True):
@@ -122,6 +130,11 @@ def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None,
         # put the img names on each image
         for j in range(len(imgs)):
             cv2.putText(imgs[j], img_names[j], (100, 80), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3, cv2.LINE_AA)
+
+    # Transform Nones in imgs into black images
+    for i in range(len(imgs)):
+        if imgs[i] is None:
+            imgs[i] = np.zeros(RPiCamV3_img_shape_RGB if rgb else RPiCamV3_img_shape, dtype=np.uint8)
 
     # Concatenate the images horizontally
     img_top = cv2.hconcat([imgs[0], imgs[2]]) # Frame 1 and 3 on top
