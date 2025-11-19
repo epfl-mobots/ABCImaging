@@ -60,7 +60,11 @@ def __filter(images_folder,idxs:list,frame_skip=1,filter_length=40,percentile=75
         print("Indexes: ", idxs)
         print("for images in folder: ", images_folder)
     all_files = os.path.join(images_folder, '*.jpg')
-    images = dask_image.imread.imread(all_files)
+    try:
+        images = dask_image.imread.imread(all_files)
+    except Exception as e:
+        print(f"Error reading images from {all_files}: {e}")
+        raise e
     img_names = [f for f in os.listdir(images_folder) if f.endswith('.jpg')]
     img_names.sort()
     img_names = [img_names[i] for i in idxs]
@@ -87,19 +91,24 @@ def __filter(images_folder,idxs:list,frame_skip=1,filter_length=40,percentile=75
     return filtered_imgs, img_names
 
 
-def percentile_filter_df(img_paths:pd.DataFrame,frame_skip:int=1,filter_length:int=40,percentile:int=75, annotate_names:bool=False, verbose:bool=False):
+def percentile_filter_df(img_paths:pd.DataFrame, frame_skip:int=1, filter_length:int=40, percentile:int=75, annotate_names:bool=False, verbose:bool=False):
     '''
     This function makes a percentile filter of images with paths contained in a dataframe. It is preprocessing images.
-    Returns a dataframe with the filtered images with the same structure as the input dataframe.
+    
+    :return filtered_imgs, imgs_names: A tuple with a dataframe with the filtered images with the same structure as the input dataframe and names.
     '''
     filtered_imgs = pd.DataFrame(columns=img_paths.columns)
     imgs_names = pd.DataFrame(columns=img_paths.columns)
     # For names, just put the os.path.basename of img_paths
     for col in img_paths.columns:
+        if col == 'valid':
+            continue
         imgs_names[col] = img_paths[col].apply(lambda x: os.path.basename(x).split('.')[0])
         filtered_imgs[col] = None
 
     for col in img_paths.columns:
+        if col == 'valid':
+            continue
         first_path = img_paths[col].iloc[0]
         folder = os.path.dirname(first_path)
         files = sorted(os.listdir(folder))

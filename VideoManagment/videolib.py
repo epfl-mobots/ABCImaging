@@ -108,7 +108,6 @@ def initVideoWriter(dest, frame, name:str="video",fps:int=10, grayscale=True):
     video = cv2.VideoWriter(name, fourcc, fps, size,isColor=not grayscale)
     return video
 
-
 def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None, dt: pd.Timestamp = None, valid: bool = True):
     '''
     Generates a global image with the 4 images of the hives. If provided, also adds the img_names on the pictures.
