@@ -11,6 +11,8 @@ from tqdm import tqdm
 from dask import delayed, compute
 from HiveOpenings.libOpenings import * # To filter out invalid datetimes
 
+RPiCamV3_img_shape = (2592, 4608)   # Height, Width
+
 @delayed
 def _fetch_single_datetime(dt:pd.Timestamp, paths, hive_nb:int):
     dt = dt.tz_convert('UTC')  # Ensure the datetime is in UTC. Will fail if not tz-aware.
