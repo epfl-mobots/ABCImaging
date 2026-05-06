@@ -8,30 +8,29 @@ Initial date: 18/07/2025
 import pandas as pd
 import os, sys
 from tqdm import tqdm
-from dask import delayed, compute
 from HiveOpenings.libOpenings import * # To filter out invalid datetimes
 
 RPiCamV3_img_shape = (2592, 4608)   # Height, Width
 RPiCamV3_img_shape_RGB = (2592, 4608, 3)   # Height, Width, Channels
 
-@delayed
-def _fetch_single_datetime(dt:pd.Timestamp, paths:list[str], hive_nb:int):
+def _fetch_single_datetime(dt:pd.Timestamp, file_cache:dict, paths:list[str], hive_nb:int):
+    '''file_cache: dict mapping path -> list of files in that directory'''
     dt = dt.tz_convert('UTC')  # Ensure the datetime is in UTC. Will fail if not tz-aware.
     dt_result = {}
     for path in paths:
         rpi_name = os.path.basename(path)[:4]
         rpi_num = path.split('/')[-1][3]
         filename = f"hive{hive_nb}_rpi{rpi_num}_{dt.strftime('%y%m%d-%H%M')}"
-        files = os.listdir(path)
+        files = file_cache[path]
         img_path = next((os.path.join(path, f) for f in files if filename in f), None)
         dt_result[rpi_name] = img_path
     return dt, dt_result
 
-@delayed
-def _fetch_single_datetime_rounded(dt:pd.Timestamp, paths:list[str], hive_nb:int, max_time_diff:int=15):
+def _fetch_single_datetime_rounded(dt:pd.Timestamp, file_cache:dict, paths:list[str], hive_nb:int, max_time_diff:int=15):
     '''
     Fetches the images path for a specific datetime, finding the closest images to the given datetime.
     :param dt: pd.Timestamp, datetime for which we want the image. Needs to be tz-aware.
+    :param file_cache: dict mapping path -> list of files in that directory
     :param paths: list of str, list of paths to search for the images.
     :param hive_nb: int, hive number (e.g., 1, 2, etc.)
     :param max_time_diff: int, maximum time difference in minutes to consider for rounding.
@@ -43,7 +42,7 @@ def _fetch_single_datetime_rounded(dt:pd.Timestamp, paths:list[str], hive_nb:int
         rpi_name = os.path.basename(path)[:4]
         rpi_num = path.split('/')[-1][3]
         prefix = f"hive{hive_nb}_rpi{rpi_num}_"
-        files = os.listdir(path)
+        files = file_cache[path]
         best_file = None
         best_delta = None
         for f in files:
@@ -101,12 +100,12 @@ def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:in
         if invalid_recovery_time is not None:
             print(f"Valid datetimes: {valid_datetimes}")
 
-    # Delayed processing
-    if exact_image:
-        delayed_results = [_fetch_single_datetime(dt, paths, hive_nb) for dt in datetimes]
-    else:
-        delayed_results = [_fetch_single_datetime_rounded(dt, paths, hive_nb) for dt in datetimes]
-    results = compute(*delayed_results)
+    # Build file cache once instead of calling os.listdir() for each datetime
+    file_cache = {path: os.listdir(path) for path in paths}
+
+    # Direct iteration (no dask overhead)
+    fetch_func = _fetch_single_datetime if exact_image else _fetch_single_datetime_rounded
+    results = [fetch_func(dt, file_cache, paths, hive_nb) for dt in tqdm(datetimes, desc="Fetching image paths")]
 
     # Build final DataFrame
     imgs_paths = pd.DataFrame(index=datetimes, columns=columns)
