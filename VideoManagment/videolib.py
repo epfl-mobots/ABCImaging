@@ -152,20 +152,6 @@ def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None,
     # Resize the image to 4K
     img = cv2.resize(img, (3840, 2160), interpolation=cv2.INTER_LINEAR)
 
-    if dt is not None:
-        # Make sure it is tz-aware
-        assert dt.tzinfo is not None, "dt must be tz-aware"
-        if use_cet_time:
-            dt = dt.tz_convert('Europe/Zurich').strftime("%d/%m/%Y-%H:%M")
-        else:
-            dt = dt.tz_convert('UTC').strftime("%y%m%d-%H%M") + "Z"  # Convert to UTC and format as string
-        # Write the timestamp in black ontop of the white rectangle
-        (text_width, text_height), _ = cv2.getTextSize(dt, cv2.FONT_HERSHEY_SIMPLEX, 2, 3)
-        rectangle_bgr = (255, 255, 255)
-        box_coords = ((1700, 1060 + 15), (1700 + text_width, 1060 - text_height - 15))
-        cv2.rectangle(img, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
-        cv2.putText(img, dt, (1700, 1060), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 3, cv2.LINE_AA)
-    
     if not valid:
         # Convert img to RGB or BGR if it is grayscale
         if len(img.shape) == 2:  # Grayscale image
@@ -181,5 +167,19 @@ def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None,
         # Add "Invalid" text on the image
         cv2.putText(img, "Invalid dt", (1500, 500), cv2.FONT_HERSHEY_SIMPLEX, 6, red_color, 15, cv2.LINE_AA)
         cv2.putText(img, "Invalid dt", (1500, 1600), cv2.FONT_HERSHEY_SIMPLEX, 6, red_color, 15, cv2.LINE_AA)
+
+    if dt is not None:
+        # Make sure it is tz-aware
+        assert dt.tzinfo is not None, "dt must be tz-aware"
+        if use_cet_time:
+            dt = dt.tz_convert('Europe/Zurich').strftime("%d/%m/%Y-%H:%M")
+        else:
+            dt = dt.tz_convert('UTC').strftime("%y%m%d-%H%M") + "Z"  # Convert to UTC and format as string
+        # Write the timestamp in black ontop of the white rectangle
+        (text_width, text_height), _ = cv2.getTextSize(dt, cv2.FONT_HERSHEY_SIMPLEX, 2, 3)
+        rectangle_bgr = (255, 255, 255)
+        box_coords = ((1700, 1060 + 15), (1700 + text_width, 1060 - text_height - 15))
+        cv2.rectangle(img, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+        cv2.putText(img, dt, (1700, 1060), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 3, cv2.LINE_AA)
 
     return img
