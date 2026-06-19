@@ -3,6 +3,7 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 from libimage import RPiCamV3_img_shape, RPiCamV3_img_shape_RGB
+from typing import List
 
 
 def fig_to_rgb_array(fig, rgb=False):
@@ -57,7 +58,7 @@ def generateVideoFromDir():
     '''
     pass
 
-def generateVideoFromList(imgs:list, dest, name:str="video", fps:int=10, grayscale:bool=True):
+def generateVideoFromList(imgs:List, dest, name:str="video", fps:int=10, grayscale:bool=True):
     '''
     This function generates a video from a list of images.
     '''
@@ -124,7 +125,7 @@ def initVideoWriter(dest, shape, name:str="video",fps:int=10):
     video = cv2.VideoWriter(name, fourcc, fps, size, isColor = not grayscale)
     return video
 
-def imageHiveOverview(imgs: list, rgb: bool = False, img_names: list[str]= None, dt: pd.Timestamp = None, use_cet_time:bool = False, valid: bool = True):
+def imageHiveOverview(imgs: List, rgb: bool = False, img_names=None, dt: pd.Timestamp = None, use_cet_time:bool = False, valid: bool = True):
     '''
     Generates a global image with the 4 images of the hives. If provided, also adds the img_names on the pictures.
     Parameters:

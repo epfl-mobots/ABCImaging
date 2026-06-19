@@ -9,11 +9,12 @@ import pandas as pd
 import os, sys
 from tqdm import tqdm
 from HiveOpenings.libOpenings import * # To filter out invalid datetimes
+from typing import Dict, List
 
 RPiCamV3_img_shape = (2592, 4608)   # Height, Width
 RPiCamV3_img_shape_RGB = (2592, 4608, 3)   # Height, Width, Channels
 
-def _fetch_single_datetime(dt:pd.Timestamp, file_cache:dict, paths:list[str], hive_nb:int):
+def _fetch_single_datetime(dt:pd.Timestamp, file_cache:Dict, paths:List[str], hive_nb:int):
     '''file_cache: dict mapping path -> list of files in that directory'''
     dt = dt.tz_convert('UTC')  # Ensure the datetime is in UTC. Will fail if not tz-aware.
     dt_result = {}
@@ -26,7 +27,7 @@ def _fetch_single_datetime(dt:pd.Timestamp, file_cache:dict, paths:list[str], hi
         dt_result[rpi_name] = img_path
     return dt, dt_result
 
-def _fetch_single_datetime_rounded(dt:pd.Timestamp, file_cache:dict, paths:list[str], hive_nb:int, max_time_diff:int=15):
+def _fetch_single_datetime_rounded(dt:pd.Timestamp, file_cache:Dict, paths:List[str], hive_nb:int, max_time_diff:int=15):
     '''
     Fetches the images path for a specific datetime, finding the closest images to the given datetime.
     :param dt: pd.Timestamp, datetime for which we want the image. Needs to be tz-aware.
@@ -64,7 +65,7 @@ def _fetch_single_datetime_rounded(dt:pd.Timestamp, file_cache:dict, paths:list[
     return dt, dt_result
 
 
-def fetchImagesPaths(rootpath_imgs:str, datetimes:list[pd.Timestamp], hive_nb:int, invalid_recovery_time:int = None, images_fill_limit:int = None, rpis:list[int]=[1,2,3,4], exact_image:bool=True, verbose=False):
+def fetchImagesPaths(rootpath_imgs:str, datetimes:List[pd.Timestamp], hive_nb:int, invalid_recovery_time:int = None, images_fill_limit:int = None, rpis:List[int]=[1,2,3,4], exact_image:bool=True, verbose=False):
     '''
     Fetches the images' paths for a specific hive at specific datetimes using Dask for parallel processing.
 
