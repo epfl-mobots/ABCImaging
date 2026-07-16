@@ -9,6 +9,7 @@ import pandas as pd
 import os, bisect
 from tqdm import tqdm
 from HiveOpenings.libOpenings import * # To filter out invalid datetimes
+import numpy as np
 
 RPiCamV3_img_shape = (2592, 4608)   # Height, Width
 RPiCamV3_img_shape_RGB = (2592, 4608, 3)   # Height, Width, Channels
@@ -23,6 +24,46 @@ SPARSE_IMAGE_FOLDERS = {
     "/Users/cyrilmonette/Library/CloudStorage/SynologyDrive-data/24.11-25.01_metabolism_OH/Images/h2r4_1minute"
 }
 SPARSE_MAX_TIME_DIFF = 60  # minutes
+
+def estimate_affine_exposure_correction(ref_img, target_img, n_iter:int=3, keep_frac:float=0.7, max_samples:int=200_000, rng_seed:int=0):
+    '''
+    Robustly estimate a photometric gain/bias transform (ref ~= gain*target + bias) between two
+    grayscale images, using iteratively reweighted least squares.
+
+    Exposure changes are closer to a multiplicative gain on pixel intensity than a simple additive
+    offset, so fitting both a gain and a bias corrects contrast differences that a mean-shift alone
+    would miss. At each iteration, the pixels with the largest residuals (i.e. the ones most likely to
+    correspond to real activity/movement rather than exposure differences) are excluded from the fit,
+    so the estimated transform reflects the *background* exposure relationship rather than being biased
+    by genuine activity.
+
+    :param ref_img: reference image (e.g. img_slice1)
+    :param target_img: image to be corrected to match ref_img's exposure (e.g. img_slice2)
+    :param n_iter: number of reweighting iterations
+    :param keep_frac: fraction of (lowest-residual) pixels kept at each reweighting step
+    :param max_samples: max number of pixels used for the fit (subsampled for speed on large images)
+    :param rng_seed: seed for the subsampling RNG, for reproducibility
+    :return: (gain, bias) such that ref_img ~= gain * target_img + bias
+    '''
+    ref = ref_img.astype(np.float64).ravel()
+    target = target_img.astype(np.float64).ravel()
+
+    n = ref.size
+    if n > max_samples:
+        idx = np.random.default_rng(rng_seed).choice(n, size=max_samples, replace=False)
+        ref, target = ref[idx], target[idx]
+
+    gain, bias = 1.0, 0.0
+    mask = np.ones(ref.shape, dtype=bool)
+    for _ in range(n_iter):
+        if mask.sum() < 10:
+            break
+        A = np.vstack([target[mask], np.ones(mask.sum())]).T
+        (gain, bias), *_ = np.linalg.lstsq(A, ref[mask], rcond=None)
+        residuals = np.abs(ref - (gain * target + bias))
+        mask = residuals <= np.quantile(residuals, keep_frac)
+
+    return gain, bias
 
 def _build_file_ts_index(files:list[str], prefix:str)->tuple[list[pd.Timestamp], list[str]]:
     '''
