@@ -7,8 +7,8 @@ Author: Cyril Monette
 '''
 
 import os
-
 import pandas as pd
+from typing import List
 
 DEFAULT_RESULTS_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "bee_counts.csv")
 
@@ -34,7 +34,7 @@ COLUMNS = [
 ]
 
 
-def append_results(rows: list[dict], csv_path: str = DEFAULT_RESULTS_CSV) -> None:
+def append_results(rows: List[dict], csv_path: str = DEFAULT_RESULTS_CSV) -> None:
     '''
     Appends the given rows to the results CSV, creating it (with header) if needed.
 

@@ -5,6 +5,10 @@ plausible estimate of each hive's population over time.
 Author: Cyril Monette
 '''
 
+# Postpones evaluation of annotations to strings (PEP 563), so the `int | None`
+# union syntax below doesn't raise at import time on Python 3.7/3.8.
+from __future__ import annotations
+
 import os
 import sys
 
